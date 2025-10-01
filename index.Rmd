@@ -1,5 +1,5 @@
 ---
-title: "Empirical evaluation of technical replication of polygenic scores"
+title: "Empirical evaluation of analytic validity of polygenic scores"
 author: "Tian Lin, Naomi Wray"
 output: 
   html_document:

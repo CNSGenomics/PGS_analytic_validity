@@ -1,7 +1,7 @@
 name: "Empirical evaluation of technical replication of polygenic scores"
 output_dir: "."
 navbar:
-  title: "PGS|Consistency"
+  title: "PGS | Analytic validity"
   right:
     - text: "Introduction"
       href: index.html
@@ -34,4 +34,4 @@ output:
     df_print: paged
     code_folding: show
     lib_dir: site_libs
-    self_contained: no
+    self_contained: yes
