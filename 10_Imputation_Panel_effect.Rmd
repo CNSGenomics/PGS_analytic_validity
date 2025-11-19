@@ -49,8 +49,6 @@ Comparing the PGS from the two different imputation, we find most traits highly 
 Investigation on the two sets of data suggest the main difference in PGS are caused by the different SNP coverage. Hereby we developed a new method to transit the SNP weights to existing SNPs from missing SNPs when using the high density of SBayesRC predictors. 
 
 
-
-
 ```{r, eval = F,echo = F}
 predictor.list = read.csv("Tables/SupTable2_Predictors.csv")
 included_traits = predictor.list$Predictor
@@ -190,11 +188,11 @@ ggplot(data = mean.prs.summary, aes(x = HRCr1.1, y = TopMedr3, color =  Study_ID
 
 ![](Figures/mean_PGS_comparison_between_imp_panel.jpeg)
 
-# Fig 3. Variation from imputation panels. 
+# PGS Variation from imputation panels
 
 ## set up function to plot
 
-```{r}
+```{r, eval = F}
 ## define function
 panel_plot = function(example.traits, facet.col, legend.pos, 
                       melted.control.prs, data.vert, melted.prs ){
@@ -257,9 +255,10 @@ return(example.g.hist)
 }
 ```
 
-## figA. four good examples
+## figA. plot four good examples
 
-```{r, fig.width=12, fig.height=3}
+
+```{r, fig.width=12, fig.height=3, eval = F}
 
 example.traits = c("Height_03", "BMI_02", "Migraine_01", "IBD_02", 
                    "Glaucoma_01", "HairColor_01", "LungCancer_01", "UKB_FA_2022_met.d.DHA_pct")
@@ -299,9 +298,11 @@ labeled.example.impu.hist1
 
 ```
 
+![](Figures/Fig3A_consistent_examples.jpeg)
+
 ## figB. four examples with large difference
 
-```{r, fig.width=12, fig.height=3}
+```{r, fig.width=12, fig.height=3, eval = F}
 
 
 example.impu.hist2 = panel_plot(example.traits = example.traits[5:8],  facet.col = 4 , legend.pos = "bottom", 
@@ -337,10 +338,11 @@ labeled.example.impu.hist2
 ```
 
 
+![](Figures/Fig3B_inconsistent_examples.jpeg)
 
 
 
-# Sup Fig 3. all traits
+# PGS variation of all traits (SupFig3 )
 
 We used the same plot function to display all the 115 traits in 5 groups. 
 
@@ -349,7 +351,7 @@ We used the same plot function to display all the 115 traits in 5 groups.
 
 
 
-```{r, fig.width=12, fig.height=16}
+```{r, fig.width=12, fig.height=16, eval = F}
 
 example.g.hist = panel_plot(example.traits = traits_binary, facet.col = 5, legend.pos = "bottom" , 
                               melted.control.prs = melted.control.prs, data.vert = data.vert, melted.prs =melted.prs)
@@ -361,12 +363,13 @@ fig.heit = ceiling(length(traits_binary) / 5 ) *2
 
 ```
 
+![](Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_binary.jpeg)
 
 ## quantitative traits
 
 
 
-```{r, fig.width=12, fig.height=10}
+```{r, fig.width=12, fig.height=10, eval = F}
 
 example.g.hist = panel_plot(example.traits = traits_quanti, facet.col = 5,  legend.pos = "bottom", 
                             melted.control.prs = melted.control.prs, data.vert = data.vert, melted.prs =melted.prs  )
@@ -381,11 +384,12 @@ fig.heit = ceiling(length( traits_quanti) / 5 ) *2
 
 ```
 
+![](Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_quanti.jpeg)
 
 ## fatty acid 
 
 
-```{r, fig.width=12, fig.height=8}
+```{r, fig.width=12, fig.height=8, eval = F}
 
 traits_fa = traits_pfa[grep("UKB_FA", traits_pfa)]
 example.g.hist = panel_plot(example.traits = traits_fa, facet.col = 5,  legend.pos = "bottom" , 
@@ -399,12 +403,12 @@ fig.heit = ceiling(length( traits_fa) / 5 ) *2
 
 ```
 
-
+![](Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_FattyAcid.jpeg)
 
 ## proteomics
 
 
-```{r, fig.width=12, fig.height=5}
+```{r, fig.width=12, fig.height=5, eval = F}
 
 traits_ppp = traits_pfa[grep("UKB_PPP", traits_pfa)]
 
@@ -420,14 +424,14 @@ fig.heit = ceiling(length( traits_ppp) / 5 ) *2
 
 ```
 
-
+![](Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_Proteomics.jpeg)
 
 
 ## 35 biomarkers
 
 
 
-```{r, fig.width=12, fig.height=14}
+```{r, fig.width=12, fig.height=14, eval = F}
 
 example.g.hist = panel_plot(example.traits = traits_35bm, facet.col = 5,  legend.pos = "bottom" , 
                             melted.control.prs = melted.control.prs, data.vert = data.vert, melted.prs =melted.prs )
@@ -442,6 +446,7 @@ fig.heit = ceiling(length( traits_35bm) / 5 ) *2
 
 
 
+![](Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_35Biomarkers.jpeg)
 
 # Test whether difference is from missing or error
 
@@ -509,7 +514,7 @@ Rscript merge_PGS.R ${genofile2}.fam  $traitfile $outdir $data2
 
 
 
-```{r}
+```{r, eval = F}
 
 ## input PGS from TopMed imputed
 ceph_consis_PRS_TopMed = read.csv("Data/missingness_check/PRS_all_GCTB_GSA_TopMed_all_139_traits_GCTB_PRS.csv", row.names =1)
@@ -539,7 +544,7 @@ colnames(ceph_consis_PRS_WGS) = c("variable", "CN1", "CN2", "NA10861")
 
 ## standardize and melt
 
-```{r}
+```{r, eval = F}
 
 
 mean.sd.table = read.csv("Data/LifeLines_MEAN_and_SD_of_traits_for_standardization.csv", row.names = 1)
@@ -582,7 +587,7 @@ melted_ceph_consis_PRS$Trait =  predictor.list[match(melted_ceph_consis_PRS$vari
 ## summary difference
 
 
-```{r}
+```{r, eval = F}
 
 mean.prs.with.missing.summary = melted_ceph_consis_PRS%>% 
   group_by(Study_ID, variable, imputation_panel) %>%
@@ -606,16 +611,18 @@ cross.sample.mean$diff_under_same_snps = cross.sample.mean.prs.with.missing.summ
 
 
 
-```{r}
+```{r, eval = F}
 
 ggplot(data = cross.sample.mean, aes(x = mean_difference, y = diff_under_same_snps)) + geom_point() + geom_abline(intercept = 0, slope =1)
 
 
 ```
 
+![](Figures/mean_difference_of_dif_panel_vs_using_same_snps.jpeg)
+
 ## sup fig 6
 
-```{r, fig.height=5, fig.width=12}
+```{r, fig.height=5, fig.width=12, eval = F}
 
 
 hist.a = ggplot(data = cross.sample.mean, aes(x = mean_difference)) + geom_histogram(bins =50) + xlab( "|PGS-TopMed - PGS-HRC| (in SD unit)"   ) + theme_bw()  + xlim(0,2.2) + ylim(0,55)
@@ -627,10 +634,11 @@ ggsave( "Figures/SupFig6_hist_of_difference.jpeg", hist.supfig6, width = 12, hei
 
 ```
 
+![](Figures/SupFig6_hist_of_difference.jpeg)
 
 ## plot
 
-```{r, fig.height=3, fig.width=12}
+```{r, fig.height=3, fig.width=12, eval = F}
 
 example.traits = example.traits[5:8]
 
@@ -671,7 +679,7 @@ labeled.example.consist.hist
 
 ```
 
-
+![](Figures/Fig3C_cons_snp_plot.jpeg)
 
 
 
@@ -688,7 +696,7 @@ We are using correlation of PGS to show how the PGS got affected by SNP missingn
 
 
 
-```{r}
+```{r, eval = F}
 
 
 ## input PGS from TopMed imputed using converted predictors
@@ -722,7 +730,7 @@ colnames(ceph_PRS_WGS) = c("variable", "CN1", "CN2", "NA10861")
 
 ## standardize and melt
 
-```{r}
+```{r, eval = F}
 
 mean.sd.table = read.csv("Data/LifeLines_MEAN_and_SD_of_traits_for_standardization.csv", row.names = 1)
 mean.sd.table = mean.sd.table[match(included_traits, mean.sd.table$trait ),]
@@ -765,7 +773,7 @@ melted_ceph_convert_PRS$Trait =  predictor.list[match(melted_ceph_convert_PRS$va
 
 
 
-```{r}
+```{r, eval = F}
 
 mean.prs.with.convert.summary = melted_ceph_convert_PRS%>% 
   group_by(Study_ID, variable, imputation_panel) %>%
@@ -788,18 +796,11 @@ cross.sample.mean$diff_from_convert = cross.sample.mean.prs.with.convert.summary
 ```
 
 
-```{r}
-
-hist(cross.sample.mean$diff_from_convert)
-```
-
-
-
 ## plot
 
 
 
-```{r, fig.height=3, fig.width=12}
+```{r, fig.height=3, fig.width=12, eval = F}
 
 
 
@@ -836,15 +837,22 @@ labeled.example.convert.hist  = example.convert.hist +
 
 labeled.example.convert.hist
 
-# ggsave(example.convert.hist, filename = "Figures/Fig4_PGS_consistency_when_using_converted_predictors_in_ToPMed.jpeg", width = 12, height = 3)
+# ggsave(labeled.example.convert.hist, filename = "Figures/Fig4_PGS_consistency_when_using_converted_predictors_in_ToPMed.jpeg", width = 12, height = 3)
 ```
+
+![](Figures/Fig3D_PGS_consistency_when_using_converted_predictors_in_ToPMed.jpeg)
 
 # summary of changes
 
 
 
-```{r, fig.width=8, fig.height=6}
+```{r, fig.width=8, fig.height=6, eval = F}
 
+
+cross.sample.mean = cross.sample.mean %>%
+    mutate(across(where(is.numeric), ~ round(.x, 3)))
+
+write.csv(cross.sample.mean, "Tables/SupTable3_difference_between_imputation_panel_and_coverted.csv")
 
 fig.a =  ggplot(data = cross.sample.mean, aes(x = mean_difference, y = diff_from_convert)) + 
   geom_point() + 
@@ -866,20 +874,17 @@ fig.b =  ggplot(data = cross.sample.mean, aes(x = mean_difference, y = diff_unde
 
 fig.change = ggarrange(fig.b , fig.a,  nrow = 1)
 
+
+
 fig.change
 
 
 ggsave(filename = "Figures/SupFig3_imputation_panel_difference_before_and_after_convert.jpeg", plot = fig.change, width = 12, height = 6)
 ```
 
-```{r}
+![](Figures/SupFig3_imputation_panel_difference_before_and_after_convert.jpeg)
 
-
-
-cross.sample.mean = cross.sample.mean %>%
-    mutate(across(where(is.numeric), ~ round(.x, 3)))
-
-write.csv(cross.sample.mean, "Tables/SupTable3_difference_between_imputation_panel_and_coverted.csv")
+```{r, eval = F, echo = F}
 
 datatable(
   cross.sample.mean,
@@ -898,9 +903,9 @@ class = 'display'
 
 
 
-# combine figures
 
-```{r, fig.width= 11, fig.height= 10}
+```{r, fig.width= 11, fig.height= 10, eval = F, echo = F}
+# combine figures
 library(patchwork)
 
 

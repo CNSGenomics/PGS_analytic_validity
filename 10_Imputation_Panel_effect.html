@@ -10,9 +10,8 @@
 
 
 
-<meta name="date" content="2025-06-20" />
 
-<title>Consistency of PGS from different imputation panels</title>
+<title>compare PGS from a same genotyping event using different imputation panels</title>
 
 <script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -39,19 +38,6 @@
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
-<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
-<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
-<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
-<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
-<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
-<link href="site_libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet" />
-<script src="site_libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
-<link href="site_libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet" />
-<script src="site_libs/selectize-0.12.0/selectize.min.js"></script>
-<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
-<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
 <script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 
@@ -336,7 +322,7 @@ div.tocify {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">PGS|Consistency</a>
+      <a class="navbar-brand" href="index.html">PGS | Analytic validity</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -344,37 +330,31 @@ div.tocify {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="index.html">Intro</a>
+  <a href="index.html">Introduction</a>
 </li>
 <li>
   <a href="0_PredictorPrep.html">Predictors</a>
 </li>
 <li>
-  <a href="1_GRP_ChipData.html">GRP_ChipData</a>
+  <a href="1_GRP_ChipData.html">HSU Data</a>
 </li>
 <li>
-  <a href="2_QIMR_ChipData.html">QIMR_ChipData</a>
+  <a href="2_QIMR_ChipData.html">QIMR Data</a>
 </li>
 <li>
-  <a href="3_WGS.html">WGS</a>
+  <a href="3_WGS.html">WGS data</a>
 </li>
 <li>
-  <a href="4_LowPassSeq.html">LowPass</a>
-</li>
-<li>
-  <a href="5_Consistency.html">Consistency</a>
-</li>
-<li>
-  <a href="10_Imputation_Panel_effect.html">Imputation Panel</a>
-</li>
-<li>
-  <a href="6_MissingSNP.html">MissingSNP</a>
-</li>
-<li>
-  <a href="11_convert_function.html">Convert_function</a>
+  <a href="4_LowPassSeq.html">lcWGS data</a>
 </li>
 <li>
   <a href="7_Benchmarking.html">Benchmarking</a>
+</li>
+<li>
+  <a href="5_Consistency.html">PGS Consistency</a>
+</li>
+<li>
+  <a href="10_Imputation_Panel_effect.html">Effect of Imputation Panel and missing SNPs</a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -393,120 +373,26 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Consistency of PGS from different
-imputation panels</h1>
-<h4 class="date">20 June 2025</h4>
+<h1 class="title toc-ignore">compare PGS from a same genotyping event
+using different imputation panels</h1>
 
 </div>
 
 
 <p><br> <br> <br></p>
-<div id="data-preparation" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Data preparation</h1>
-<div id="set-trait-lists" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> Set trait lists</h2>
-<pre class="r"><code>#predictor.list = read.csv(&quot;Data/Predictors/Predictor_Release_20241010.csv&quot;)
-predictor.list = read.csv(&quot;Tables/SupTable2_Predictors.csv&quot;)
-#predictor.list = predictor.list[which(predictor.list$unpicked_predictors_for_CEPH_project != &quot;Yes&quot;) ,]
-#predictor.list$Predictor = gsub(&quot;-&quot;, &quot;.&quot;, predictor.list$Predictor)
-included_traits = predictor.list$Predictor
-
-## grouping traits
-traits_binary = predictor.list[which(predictor.list$Group == &quot;Binary&quot; ),&quot;Predictor&quot;]
-traits_quanti = predictor.list[which(predictor.list$Group == &quot;Quantitative&quot;),&quot;Predictor&quot;]
-traits_35bm   = predictor.list[which(predictor.list$Group == &quot;Biomarker&quot;),&quot;Predictor&quot;]
-traits_pfa   = predictor.list[which(predictor.list$Group == &quot;Protein and Fatty Acid&quot;),&quot;Predictor&quot;]</code></pre>
-</div>
-<div id="input-benchmark-data" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> input benchmark
-data</h2>
-<pre class="r"><code>## benchmarking data
-#prs.bench.norm = read.csv(&quot;Data//Merged_Standardized_GCTB_PGS_of_benchmarking_samples_in_GRP.csv&quot;)
-prs.bench.norm = read.csv(&quot;Data/LL/LifeLines1_Eur_140_traits_GCTB_PRS_self_standardized.csv&quot;, row.names = 1)</code></pre>
-<pre class="r"><code>## extract used traits
-prs.bench.norm = prs.bench.norm[,colnames(prs.bench.norm)%in%included_traits]
-prs.bench.norm$IID = row.names(prs.bench.norm)
-
-## melt it
-melted.prs = reshape2::melt(prs.bench.norm,  id.vars = &quot;IID&quot;)
-melted.prs$value = as.numeric(melted.prs$value)
-
-## add the Label of phenotype
-melted.prs$Trait = predictor.list[match(melted.prs$variable, predictor.list$Predictor),&quot;Label&quot;]</code></pre>
-</div>
-<div id="input-control-samples" class="section level2" number="1.3">
-<h2><span class="header-section-number">1.3</span> input control
-samples</h2>
-<pre class="r"><code>control.prs = read.csv(&quot;Data/LL_standardized_PGS_of_CEPH_samples.csv&quot;, row.names = 1)
-
-## keep selected traits
-control.prs = cbind(control.prs[,1:11], control.prs[,included_traits])
-
-## order it
-control.prs = control.prs %&gt;% arrange(Study_ID,Chip, Genotyping.lab)
-full.control.prs = control.prs</code></pre>
-</div>
-<div id="set-up-wgs-verticle-lines" class="section level2" number="1.4">
-<h2><span class="header-section-number">1.4</span> Set up WGS verticle
-lines</h2>
-<pre class="r"><code># set the position of the vertical line as WGS data
-data.vert = control.prs[which(control.prs$Chip ==&quot;WGS&quot;), which(colnames(control.prs)%in%c(included_traits ,&quot;Study_ID&quot; ))]
-
-row.names(data.vert) = data.vert$Study_ID
-data.vert = data.vert[,-1]
-data.vert = data.frame(t(data.vert))
-data.vert = data.vert[row.names(data.vert)%in%included_traits,]
-data.vert$variable = row.names(data.vert)
-data.vert$Trait = predictor.list[match(data.vert$variable, predictor.list$Predictor),&quot;Label&quot;]</code></pre>
-</div>
-<div id="prepare-control-data" class="section level2" number="1.5">
-<h2><span class="header-section-number">1.5</span> prepare control
-data</h2>
-</div>
-<div id="selected-samples-with-hrc-vs.-topmed" class="section level2"
-number="1.6">
-<h2><span class="header-section-number">1.6</span> selected samples with
-HRC vs. TopMed</h2>
-<pre class="r"><code>## keep only one chip to compare
-control.prs = data.frame(control.prs[which(control.prs$Chip == &quot;GSAMD-24v1-0_20011747&quot; ), ])
-
-## exclude none important control samples 
-control.prs = control.prs[control.prs$Study_ID%in% sample.list,]
-
-## drop sample levels
-control.prs$Study_ID = factor(control.prs$Study_ID , levels = unique(control.prs$Study_ID ))
-control.prs$Genotyping.lab = factor(control.prs$Genotyping.lab , levels = unique(control.prs$Genotyping.lab))
-control.prs$imputation_panel = factor(control.prs$imputation_panel, levels =panel.order )</code></pre>
-</div>
-<div id="add-position-for-control-samples" class="section level2"
-number="1.7">
-<h2><span class="header-section-number">1.7</span> add position for
-control samples</h2>
-<pre class="r"><code>control.prs &lt;- control.prs %&gt;%
-  arrange(imputation_panel) %&gt;%
-  group_by(Study_ID) %&gt;%
-  mutate(y.position = row_number()) %&gt;%
-  ungroup()  # Ungroup to return to normal data frame structure
-
-control.prs$y.position = 5*(control.prs$y.position)
-control.prs = data.frame(control.prs)</code></pre>
-</div>
-<div id="melt" class="section level2" number="1.8">
-<h2><span class="header-section-number">1.8</span> melt</h2>
-<pre class="r"><code>melted.control.prs = reshape2::melt(control.prs, 
-                          id.vars =colnames(control.prs)[!colnames(control.prs)%in%included_traits], 
-                          measure.vars = colnames(control.prs)[colnames(control.prs)%in%included_traits])
-melted.control.prs$value = as.numeric(melted.control.prs$value)
-
-## add the phenotype 
-## use phenotype name instead of predictor name 
-melted.control.prs$Trait = predictor.list[match(melted.control.prs$variable, predictor.list$Predictor),&quot;Label&quot;]</code></pre>
-</div>
-</div>
-<div id="summary-difference" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> summary difference</h1>
+<p>Four CEPH samples (NA06990, NA07023, NA07057, NA10861) genotyped
+multiple times on the same array (Illumina GSAMD-24v1-0_20011747) by
+QIMRB were imputed to both HRCr1.1 and TOPMed reference panels.
+Comparing the PGS from the two different imputation, we find most traits
+highly consistent except a few.</p>
+<p>Investigation on the two sets of data suggest the main difference in
+PGS are caused by the different SNP coverage. Hereby we developed a new
+method to transit the SNP weights to existing SNPs from missing SNPs
+when using the high density of SBayesRC predictors.</p>
+<div id="summary-difference" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> summary difference</h1>
 <p>Here is a plot of average PGS comparing between the two imputation
-panel of</p>
+panel.</p>
 <pre class="r"><code>mean.prs.summary = melted.control.prs%&gt;% 
   group_by(Study_ID, variable, Impute_Panel) %&gt;%
   summarise(
@@ -524,19 +410,21 @@ mean.prs.summary$difference = abs(mean.prs.summary$TopMedr3 - mean.prs.summary$H
   arrange(mean_difference)
 
 hist(cross.sample.mean$mean_difference, breaks = 50)</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img
+src="Figures/difference_of_mean_PGS_between_imputation_panel.png" /></p>
 <pre class="r"><code>ggplot(data = mean.prs.summary, aes(x = HRCr1.1, y = TopMedr3, color =  Study_ID)) + geom_point()+ 
   geom_abline(intercept = 0, slope = 1) +
   geom_text_repel(data = mean.prs.summary %&gt;% filter(difference &gt; 0.5 ) , 
                     aes(label = variable), vjust = -1, color = &quot;black&quot;, size = 1.5)</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="Figures/mean_PGS_comparison_between_imp_panel.jpeg" /></p>
 </div>
-<div id="fig-3.-variation-from-imputation-panels."
-class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Fig 3. Variation from
-imputation panels.</h1>
-<p>We will use QIMR data to show it, since they are imputed in both
-panels.</p>
+<div id="pgs-variation-from-imputation-panels" class="section level1"
+number="2">
+<h1><span class="header-section-number">2</span> PGS Variation from
+imputation panels</h1>
+<div id="set-up-function-to-plot" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> set up function to
+plot</h2>
 <pre class="r"><code>## define function
 panel_plot = function(example.traits, facet.col, legend.pos, 
                       melted.control.prs, data.vert, melted.prs ){
@@ -597,6 +485,11 @@ plot.margin = margin(0.1, 0.1, 0.1, 0.1)
 return(example.g.hist)
 
 }</code></pre>
+</div>
+<div id="figa.-plot-four-good-examples" class="section level2"
+number="2.2">
+<h2><span class="header-section-number">2.2</span> figA. plot four good
+examples</h2>
 <pre class="r"><code>example.traits = c(&quot;Height_03&quot;, &quot;BMI_02&quot;, &quot;Migraine_01&quot;, &quot;IBD_02&quot;, 
                    &quot;Glaucoma_01&quot;, &quot;HairColor_01&quot;, &quot;LungCancer_01&quot;, &quot;UKB_FA_2022_met.d.DHA_pct&quot;)
 
@@ -632,7 +525,12 @@ labeled.example.impu.hist1 = example.impu.hist1 +
   ) 
 
 labeled.example.impu.hist1</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-14-1.png" width="1152" /></p>
+<p><img src="Figures/Fig3A_consistent_examples.jpeg" /></p>
+</div>
+<div id="figb.-four-examples-with-large-difference"
+class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> figB. four examples
+with large difference</h2>
 <pre class="r"><code>example.impu.hist2 = panel_plot(example.traits = example.traits[5:8],  facet.col = 4 , legend.pos = &quot;bottom&quot;, 
                             melted.control.prs = melted.control.prs, data.vert = data.vert, melted.prs =melted.prs )
 
@@ -663,80 +561,92 @@ labeled.example.impu.hist2 = example.impu.hist2 +
   ) 
 
 labeled.example.impu.hist2</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-15-1.png" width="1152" /></p>
-<pre class="r"><code>example.impu.hist = ggarrange(example.impu.hist1, example.impu.hist2, nrow =2)
-#ggsave(example.impu.hist, filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed.jpeg&quot;, width = 12, height = 5)</code></pre>
+<p><img src="Figures/Fig3B_inconsistent_examples.jpeg" /></p>
 </div>
-<div id="sup-fig-3.-all-traits" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> Sup Fig 3. all
-traits</h1>
-<div id="binary-traits" class="section level2" number="4.1">
-<h2><span class="header-section-number">4.1</span> binary traits</h2>
+</div>
+<div id="pgs-variation-of-all-traits-supfig3" class="section level1"
+number="3">
+<h1><span class="header-section-number">3</span> PGS variation of all
+traits (SupFig3 )</h1>
+<p>We used the same plot function to display all the 115 traits in 5
+groups.</p>
+<div id="binary-traits" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> binary traits</h2>
 <pre class="r"><code>example.g.hist = panel_plot(example.traits = traits_binary, facet.col = 5, legend.pos = &quot;bottom&quot; , 
                               melted.control.prs = melted.control.prs, data.vert = data.vert, melted.prs =melted.prs)
-example.g.hist</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-17-1.png" width="1152" /></p>
-<pre class="r"><code>fig.heit = ceiling(length(traits_binary) / 5 ) *2
-ggsave(example.g.hist, filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_binary.jpeg&quot;, width = 12, height = fig.heit)</code></pre>
+example.g.hist
+
+fig.heit = ceiling(length(traits_binary) / 5 ) *2
+#ggsave(example.g.hist, filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_binary.jpeg&quot;, width = 12, height = fig.heit)</code></pre>
+<p><img
+src="Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_binary.jpeg" /></p>
 </div>
-<div id="quantitative-traits" class="section level2" number="4.2">
-<h2><span class="header-section-number">4.2</span> quantitative
+<div id="quantitative-traits" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> quantitative
 traits</h2>
 <pre class="r"><code>example.g.hist = panel_plot(example.traits = traits_quanti, facet.col = 5,  legend.pos = &quot;bottom&quot;, 
                             melted.control.prs = melted.control.prs, data.vert = data.vert, melted.prs =melted.prs  )
 
-example.g.hist</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-18-1.png" width="1152" /></p>
-<pre class="r"><code>fig.heit = ceiling(length( traits_quanti) / 5 ) *2
+example.g.hist
+
+fig.heit = ceiling(length( traits_quanti) / 5 ) *2
 #fig.heit
-ggsave(example.g.hist ,   filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_quanti.jpeg&quot;, width = 12, height = fig.heit)</code></pre>
+
+#ggsave(example.g.hist ,   filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_quanti.jpeg&quot;, width = 12, height = fig.heit)</code></pre>
+<p><img
+src="Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_quanti.jpeg" /></p>
 </div>
-<div id="fatty-acid-and-proteins" class="section level2" number="4.3">
-<h2><span class="header-section-number">4.3</span> fatty acid and
-proteins</h2>
+<div id="fatty-acid" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> fatty acid</h2>
 <pre class="r"><code>traits_fa = traits_pfa[grep(&quot;UKB_FA&quot;, traits_pfa)]
 example.g.hist = panel_plot(example.traits = traits_fa, facet.col = 5,  legend.pos = &quot;bottom&quot; , 
                             melted.control.prs = melted.control.prs, data.vert = data.vert, melted.prs =melted.prs )
 
-example.g.hist</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-19-1.png" width="1152" /></p>
-<pre class="r"><code>fig.heit = ceiling(length( traits_fa) / 5 ) *2
+example.g.hist
 
-ggsave(example.g.hist ,  filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_FattyAcid.jpeg&quot;, width = 12, height = 8)</code></pre>
+fig.heit = ceiling(length( traits_fa) / 5 ) *2
+
+#ggsave(example.g.hist ,  filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_FattyAcid.jpeg&quot;, width = 12, height = 8)</code></pre>
+<p><img
+src="Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_FattyAcid.jpeg" /></p>
 </div>
-<div id="proteomics" class="section level2" number="4.4">
-<h2><span class="header-section-number">4.4</span> proteomics</h2>
+<div id="proteomics" class="section level2" number="3.4">
+<h2><span class="header-section-number">3.4</span> proteomics</h2>
 <pre class="r"><code>traits_ppp = traits_pfa[grep(&quot;UKB_PPP&quot;, traits_pfa)]
 
 
 example.g.hist = panel_plot(example.traits = traits_ppp, facet.col = 5,  legend.pos = &quot;bottom&quot; , 
                             melted.control.prs = melted.control.prs, data.vert = data.vert, melted.prs =melted.prs )
 
-example.g.hist</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-20-1.png" width="1152" /></p>
-<pre class="r"><code>fig.heit = ceiling(length( traits_ppp) / 5 ) *2
+example.g.hist
 
-ggsave(example.g.hist ,  filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_Proteomics.jpeg&quot;, width = 12, height = 5)</code></pre>
+fig.heit = ceiling(length( traits_ppp) / 5 ) *2
+
+#ggsave(example.g.hist ,  filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_Proteomics.jpeg&quot;, width = 12, height = 5)</code></pre>
+<p><img
+src="Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_Proteomics.jpeg" /></p>
 </div>
-<div id="biomarkers" class="section level2" number="4.5">
-<h2><span class="header-section-number">4.5</span> 35 biomarkers</h2>
+<div id="biomarkers" class="section level2" number="3.5">
+<h2><span class="header-section-number">3.5</span> 35 biomarkers</h2>
 <pre class="r"><code>example.g.hist = panel_plot(example.traits = traits_35bm, facet.col = 5,  legend.pos = &quot;bottom&quot; , 
                             melted.control.prs = melted.control.prs, data.vert = data.vert, melted.prs =melted.prs )
 
-example.g.hist</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-21-1.png" width="1152" /></p>
-<pre class="r"><code>fig.heit = ceiling(length( traits_35bm) / 5 ) *2
+example.g.hist
 
-ggsave(example.g.hist ,  filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_35Biomarkers.jpeg&quot;, width = 12, height = fig.heit)</code></pre>
+fig.heit = ceiling(length( traits_35bm) / 5 ) *2
+
+#ggsave(example.g.hist ,  filename = &quot;Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_35Biomarkers.jpeg&quot;, width = 12, height = fig.heit)</code></pre>
+<p><img
+src="Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed_35Biomarkers.jpeg" /></p>
 </div>
 </div>
 <div id="test-whether-difference-is-from-missing-or-error"
-class="section level1" number="5">
-<h1><span class="header-section-number">5</span> Test whether difference
+class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Test whether difference
 is from missing or error</h1>
 <div id="profile-pgs-without-the-missing-snps" class="section level2"
-number="5.1">
-<h2><span class="header-section-number">5.1</span> profile PGS without
+number="4.1">
+<h2><span class="header-section-number">4.1</span> profile PGS without
 the missing SNPs</h2>
 <pre class="bash"><code>## define predictor
 traitfile=&quot;/QRISdata/Q6913/GCTB_predictor_list_for_batch_profiling.txt&quot;
@@ -788,8 +698,8 @@ genofile2=Merged_plink/GSA_HRCr1.1_autosomes
 Rscript merge_PGS.R ${genofile2}.fam  $traitfile $outdir $data2
 </code></pre>
 </div>
-<div id="combine-the-data" class="section level2" number="5.2">
-<h2><span class="header-section-number">5.2</span> combine the data</h2>
+<div id="combine-the-data" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> combine the data</h2>
 <pre class="r"><code>## input PGS from TopMed imputed
 ceph_consis_PRS_TopMed = read.csv(&quot;Data/missingness_check/PRS_all_GCTB_GSA_TopMed_all_139_traits_GCTB_PRS.csv&quot;, row.names =1)
 ceph_consis_PRS_TopMed= ceph_consis_PRS_TopMed[,match(included_traits, colnames(ceph_consis_PRS_TopMed) )]
@@ -814,8 +724,8 @@ ceph_consis_PRS_WGS$V1 = gsub(&quot;-&quot;, &quot;.&quot;,ceph_consis_PRS_WGS$V
 ceph_consis_PRS_WGS = (ceph_consis_PRS_WGS[ match(included_traits, ceph_consis_PRS_WGS$V1),])
 colnames(ceph_consis_PRS_WGS) = c(&quot;variable&quot;, &quot;CN1&quot;, &quot;CN2&quot;, &quot;NA10861&quot;)</code></pre>
 </div>
-<div id="standardize-and-melt" class="section level2" number="5.3">
-<h2><span class="header-section-number">5.3</span> standardize and
+<div id="standardize-and-melt" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> standardize and
 melt</h2>
 <pre class="r"><code>mean.sd.table = read.csv(&quot;Data/LifeLines_MEAN_and_SD_of_traits_for_standardization.csv&quot;, row.names = 1)
 mean.sd.table = mean.sd.table[match(included_traits, mean.sd.table$trait ),]
@@ -851,8 +761,8 @@ ceph_consis_PRS_WGS$NA10861 =  ( ceph_consis_PRS_WGS$NA10861 -  mean.sd.table$me
 ceph_consis_PRS_WGS$Trait = predictor.list[match(ceph_consis_PRS_WGS$variable, predictor.list$Predictor),&quot;Label&quot;]
 melted_ceph_consis_PRS$Trait =  predictor.list[match(melted_ceph_consis_PRS$variable, predictor.list$Predictor),&quot;Label&quot;]</code></pre>
 </div>
-<div id="summary-difference-1" class="section level2" number="5.4">
-<h2><span class="header-section-number">5.4</span> summary
+<div id="summary-difference-1" class="section level2" number="4.4">
+<h2><span class="header-section-number">4.4</span> summary
 difference</h2>
 <pre class="r"><code>mean.prs.with.missing.summary = melted_ceph_consis_PRS%&gt;% 
   group_by(Study_ID, variable, imputation_panel) %&gt;%
@@ -872,20 +782,21 @@ cross.sample.mean = data.frame(cross.sample.mean)
 cross.sample.mean.prs.with.missing.summary = data.frame(cross.sample.mean.prs.with.missing.summary)
 cross.sample.mean$diff_under_same_snps = cross.sample.mean.prs.with.missing.summary[ match(cross.sample.mean$variable, cross.sample.mean.prs.with.missing.summary$variable), &quot;mean_difference&quot;]</code></pre>
 <pre class="r"><code>ggplot(data = cross.sample.mean, aes(x = mean_difference, y = diff_under_same_snps)) + geom_point() + geom_abline(intercept = 0, slope =1)</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<p><img
+src="Figures/mean_difference_of_dif_panel_vs_using_same_snps.jpeg" /></p>
 </div>
-<div id="sup-fig-6" class="section level2" number="5.5">
-<h2><span class="header-section-number">5.5</span> sup fig 6</h2>
-<pre class="r"><code>hist.a = ggplot(data = cross.sample.mean, aes(x = mean_difference)) + geom_histogram(bins =50) + xlab( &quot;|PGS-TopMed - PGS-HRC| (in SD unit)&quot;   ) + theme_bw()  + xlim(0,2.2) + ylim(0,30)
-hist.b = ggplot(data = cross.sample.mean, aes(x = diff_under_same_snps)) + geom_histogram(bins =50) + xlab( &quot;|PGS-TopMed - PGS-HRC| (in SD unit)&quot;   ) + theme_bw()   + xlim(0,2.2) + ylim(0,30)
+<div id="sup-fig-6" class="section level2" number="4.5">
+<h2><span class="header-section-number">4.5</span> sup fig 6</h2>
+<pre class="r"><code>hist.a = ggplot(data = cross.sample.mean, aes(x = mean_difference)) + geom_histogram(bins =50) + xlab( &quot;|PGS-TopMed - PGS-HRC| (in SD unit)&quot;   ) + theme_bw()  + xlim(0,2.2) + ylim(0,55)
+hist.b = ggplot(data = cross.sample.mean, aes(x = diff_under_same_snps)) + geom_histogram(bins =50) + xlab( &quot;|PGS-TopMed - PGS-HRC| (in SD unit)&quot;   ) + theme_bw()   + xlim(0,2.2) + ylim(0,55)
 
 hist.supfig6 = ggarrange(hist.a, hist.b, labels = c(&quot;A&quot;, &quot;B&quot;))
-hist.supfig6</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-28-1.png" width="1152" /></p>
-<pre class="r"><code>ggsave( &quot;Figures/SupFig6_hist_of_difference.jpeg&quot;, hist.supfig6, width = 12, height = 5)</code></pre>
+hist.supfig6
+ggsave( &quot;Figures/SupFig6_hist_of_difference.jpeg&quot;, hist.supfig6, width = 12, height = 5)</code></pre>
+<p><img src="Figures/SupFig6_hist_of_difference.jpeg" /></p>
 </div>
-<div id="plot" class="section level2" number="5.6">
-<h2><span class="header-section-number">5.6</span> plot</h2>
+<div id="plot" class="section level2" number="4.6">
+<h2><span class="header-section-number">4.6</span> plot</h2>
 <pre class="r"><code>example.traits = example.traits[5:8]
 
 
@@ -921,17 +832,17 @@ labeled.example.consist.hist  = example.consist.hist +
   ) 
 
 labeled.example.consist.hist</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-29-1.png" width="1152" /></p>
+<p><img src="Figures/Fig3C_cons_snp_plot.jpeg" /></p>
 </div>
 </div>
 <div id="examine-convert-function-in-fixing-the-missingness"
-class="section level1" number="6">
-<h1><span class="header-section-number">6</span> Examine convert
+class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Examine convert
 function in fixing the missingness</h1>
 <p>We are using correlation of PGS to show how the PGS got affected by
 SNP missingness, and how the convert function recover the PGS.</p>
-<div id="combine-the-data-1" class="section level2" number="6.1">
-<h2><span class="header-section-number">6.1</span> combine the data</h2>
+<div id="combine-the-data-1" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> combine the data</h2>
 <pre class="r"><code>## input PGS from TopMed imputed using converted predictors
 ceph_convert_PRS_TopMed = read.csv(&quot;Data/missingness_check/QIMR_TopMed_PGS_from_converted_predictors_QIMR_GSA_TopMedr3_imputed_all_123_traits_GCTB_PRS.csv&quot;, row.names =1)
 
@@ -959,8 +870,8 @@ ceph_PRS_WGS$V1 = gsub(&quot;-&quot;, &quot;.&quot;, ceph_PRS_WGS$V1)
 ceph_PRS_WGS = (ceph_PRS_WGS[ match(included_traits, ceph_PRS_WGS$V1),])
 colnames(ceph_PRS_WGS) = c(&quot;variable&quot;, &quot;CN1&quot;, &quot;CN2&quot;, &quot;NA10861&quot;)</code></pre>
 </div>
-<div id="standardize-and-melt-1" class="section level2" number="6.2">
-<h2><span class="header-section-number">6.2</span> standardize and
+<div id="standardize-and-melt-1" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> standardize and
 melt</h2>
 <pre class="r"><code>mean.sd.table = read.csv(&quot;Data/LifeLines_MEAN_and_SD_of_traits_for_standardization.csv&quot;, row.names = 1)
 mean.sd.table = mean.sd.table[match(included_traits, mean.sd.table$trait ),]
@@ -996,8 +907,8 @@ ceph_PRS_WGS$NA10861 =  ( ceph_PRS_WGS$NA10861 -  mean.sd.table$mean) / mean.sd.
 ceph_PRS_WGS$Trait = predictor.list[match(ceph_PRS_WGS$variable, predictor.list$Predictor),&quot;Label&quot;]
 melted_ceph_convert_PRS$Trait =  predictor.list[match(melted_ceph_convert_PRS$variable, predictor.list$Predictor),&quot;Label&quot;]</code></pre>
 </div>
-<div id="summarize" class="section level2" number="6.3">
-<h2><span class="header-section-number">6.3</span> summarize</h2>
+<div id="summarize" class="section level2" number="5.3">
+<h2><span class="header-section-number">5.3</span> summarize</h2>
 <pre class="r"><code>mean.prs.with.convert.summary = melted_ceph_convert_PRS%&gt;% 
   group_by(Study_ID, variable, imputation_panel) %&gt;%
   summarise(
@@ -1015,11 +926,9 @@ cross.sample.mean.prs.with.convert.summary= mean.prs.with.convert.summary %&gt;%
 cross.sample.mean = data.frame(cross.sample.mean)
 cross.sample.mean.prs.with.convert.summary = data.frame(cross.sample.mean.prs.with.convert.summary)
 cross.sample.mean$diff_from_convert = cross.sample.mean.prs.with.convert.summary[ match(cross.sample.mean$variable, cross.sample.mean.prs.with.convert.summary$variable), &quot;mean_difference&quot;]</code></pre>
-<pre class="r"><code>hist(cross.sample.mean$diff_from_convert)</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
 </div>
-<div id="plot-1" class="section level2" number="6.4">
-<h2><span class="header-section-number">6.4</span> plot</h2>
+<div id="plot-1" class="section level2" number="5.4">
+<h2><span class="header-section-number">5.4</span> plot</h2>
 <pre class="r"><code>example.convert.hist =  panel_plot(example.traits =example.traits, facet.col = 4,  legend.pos = &quot;bottom&quot; , melted_ceph_convert_PRS , ceph_PRS_WGS, melted.prs )
  
 
@@ -1051,14 +960,21 @@ labeled.example.convert.hist  = example.convert.hist +
     family = &quot;Arial Unicode MS&quot;
   ) 
 
-labeled.example.convert.hist</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-34-1.png" width="1152" /></p>
-<pre class="r"><code># ggsave(example.convert.hist, filename = &quot;Figures/Fig4_PGS_consistency_when_using_converted_predictors_in_ToPMed.jpeg&quot;, width = 12, height = 3)</code></pre>
+labeled.example.convert.hist
+
+# ggsave(labeled.example.convert.hist, filename = &quot;Figures/Fig4_PGS_consistency_when_using_converted_predictors_in_ToPMed.jpeg&quot;, width = 12, height = 3)</code></pre>
+<p><img
+src="Figures/Fig3D_PGS_consistency_when_using_converted_predictors_in_ToPMed.jpeg" /></p>
 </div>
 </div>
-<div id="summary-of-changes" class="section level1" number="7">
-<h1><span class="header-section-number">7</span> summary of changes</h1>
-<pre class="r"><code>fig.a =  ggplot(data = cross.sample.mean, aes(x = mean_difference, y = diff_from_convert)) + 
+<div id="summary-of-changes" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> summary of changes</h1>
+<pre class="r"><code>cross.sample.mean = cross.sample.mean %&gt;%
+    mutate(across(where(is.numeric), ~ round(.x, 3)))
+
+write.csv(cross.sample.mean, &quot;Tables/SupTable3_difference_between_imputation_panel_and_coverted.csv&quot;)
+
+fig.a =  ggplot(data = cross.sample.mean, aes(x = mean_difference, y = diff_from_convert)) + 
   geom_point() + 
   geom_abline(intercept = 0, slope =1)+ 
   geom_text_repel(data = cross.sample.mean %&gt;% filter(mean_difference &gt; 0.2 | diff_from_convert &gt; 0.2) , 
@@ -1078,48 +994,17 @@ fig.b =  ggplot(data = cross.sample.mean, aes(x = mean_difference, y = diff_unde
 
 fig.change = ggarrange(fig.b , fig.a,  nrow = 1)
 
-fig.change</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-35-1.png" width="768" /></p>
-<pre class="r"><code>ggsave(filename = &quot;Figures/SupFig3_imputation_panel_difference_before_and_after_convert.jpeg&quot;, plot = fig.change, width = 12, height = 6)</code></pre>
-<pre class="r"><code>cross.sample.mean = cross.sample.mean %&gt;%
-    mutate(across(where(is.numeric), ~ round(.x, 3)))
 
-write.csv(cross.sample.mean, &quot;Tables/SupTable3_difference_between_imputation_panel_and_coverted.csv&quot;)
 
-datatable(
-  cross.sample.mean,
-  options = list(
-    pageLength = 10,     # show 10 rows per page
-    scrollX = TRUE       # enable horizontal scrolling
-  ),
-    filter = &quot;top&quot;,  # Adds filter boxes for each column
-class = &#39;display&#39;
-)</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-fc9a7161d7dab4e9d153" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-fc9a7161d7dab4e9d153">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td><\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;BMD_01&quot;,&quot;BMI_02&quot;,&quot;BV_01&quot;,&quot;C3_01&quot;,&quot;C4_01&quot;,&quot;EA_01&quot;,&quot;EosCnt_01&quot;,&quot;FastingGlucose_01&quot;,&quot;FEV1FEC_01&quot;,&quot;Height_03&quot;,&quot;HipCir_01&quot;,&quot;Insomnia_01&quot;,&quot;Intelligence_01&quot;,&quot;LymCnt_01&quot;,&quot;mtCNT_01&quot;,&quot;NeuCnt_01&quot;,&quot;PLT_02&quot;,&quot;RandomGlucose_01&quot;,&quot;RBCCnt_01&quot;,&quot;SBP_01&quot;,&quot;SleepMidpoint_01&quot;,&quot;SlpDu_01&quot;,&quot;VitDBP_01&quot;,&quot;ADHD_01&quot;,&quot;AF_01&quot;,&quot;ALS_02&quot;,&quot;Alzheimer_02&quot;,&quot;Anorexia_01&quot;,&quot;ArHI_01&quot;,&quot;ASD_01&quot;,&quot;Asthma_01&quot;,&quot;BIP_02&quot;,&quot;BreastCancer_01&quot;,&quot;CAD_01&quot;,&quot;CD_01&quot;,&quot;CeliacDisease_01&quot;,&quot;CKD_01&quot;,&quot;COB_01&quot;,&quot;CoronaryAtherosclerosis_01&quot;,&quot;DivD_01&quot;,&quot;Glaucoma_01&quot;,&quot;GORD_01&quot;,&quot;HairColor_01&quot;,&quot;HeartFailure_01&quot;,&quot;IBD_02&quot;,&quot;LungCancer_01&quot;,&quot;Melanoma_01&quot;,&quot;Migraine_01&quot;,&quot;PBC_01&quot;,&quot;SCZ_02&quot;,&quot;SLE_01&quot;,&quot;T2D_06&quot;,&quot;UC_01&quot;,&quot;IPF_01&quot;,&quot;MDD_04&quot;,&quot;UKB_PPP_2022_CXCL8&quot;,&quot;UKB_PPP_2022_ICAM1&quot;,&quot;UKB_PPP_2022_IFNG&quot;,&quot;UKB_PPP_2022_IL10&quot;,&quot;UKB_PPP_2022_IL12B&quot;,&quot;UKB_PPP_2022_IL15&quot;,&quot;UKB_PPP_2022_IL1B&quot;,&quot;UKB_PPP_2022_IL6&quot;,&quot;UKB_PPP_2022_TNF&quot;,&quot;UKB_PPP_2022_VCAM1&quot;,&quot;UKB_FA_2022_met.d.DHA&quot;,&quot;UKB_FA_2022_met.d.DHA_pct&quot;,&quot;UKB_FA_2022_met.d.LA&quot;,&quot;UKB_FA_2022_met.d.LA_pct&quot;,&quot;UKB_FA_2022_met.d.MUFA&quot;,&quot;UKB_FA_2022_met.d.MUFA_pct&quot;,&quot;UKB_FA_2022_met.d.Omega_3&quot;,&quot;UKB_FA_2022_met.d.Omega_3_pct&quot;,&quot;UKB_FA_2022_met.d.Omega_6&quot;,&quot;UKB_FA_2022_met.d.Omega_6_by_Omega_3&quot;,&quot;UKB_FA_2022_met.d.Omega_6_pct&quot;,&quot;UKB_FA_2022_met.d.PUFA&quot;,&quot;UKB_FA_2022_met.d.PUFA_by_MUFA&quot;,&quot;UKB_FA_2022_met.d.PUFA_pct&quot;,&quot;UKB_FA_2022_met.d.SFA&quot;,&quot;UKB_FA_2022_met.d.SFA_pct&quot;,&quot;UKB_35BM_2021_Alanine_aminotransferase&quot;,&quot;UKB_35BM_2021_Albumin&quot;,&quot;UKB_35BM_2021_Alkaline_phosphatase&quot;,&quot;UKB_35BM_2021_Apolipoprotein_A&quot;,&quot;UKB_35BM_2021_Apolipoprotein_B_adjstatins&quot;,&quot;UKB_35BM_2021_Aspartate_aminotransferase&quot;,&quot;UKB_35BM_2021_AST_ALT_ratio&quot;,&quot;UKB_35BM_2021_C_reactive_protein&quot;,&quot;UKB_35BM_2021_Calcium&quot;,&quot;UKB_35BM_2021_Cholesterol_adjstatins&quot;,&quot;UKB_35BM_2021_Creatinine&quot;,&quot;UKB_35BM_2021_Creatinine_in_urine&quot;,&quot;UKB_35BM_2021_Cystatin_C&quot;,&quot;UKB_35BM_2021_Direct_bilirubin&quot;,&quot;UKB_35BM_2021_eGFR&quot;,&quot;UKB_35BM_2021_Gamma_glutamyltransferase&quot;,&quot;UKB_35BM_2021_Glucose&quot;,&quot;UKB_35BM_2021_Glycated_haemoglobin_HbA1c&quot;,&quot;UKB_35BM_2021_HDL_cholesterol&quot;,&quot;UKB_35BM_2021_IGF_1&quot;,&quot;UKB_35BM_2021_LDL_direct_adjstatins&quot;,&quot;UKB_35BM_2021_Lipoprotein_A&quot;,&quot;UKB_35BM_2021_Non_albumin_protein&quot;,&quot;UKB_35BM_2021_Phosphate&quot;,&quot;UKB_35BM_2021_Potassium_in_urine&quot;,&quot;UKB_35BM_2021_SHBG&quot;,&quot;UKB_35BM_2021_Sodium_in_urine&quot;,&quot;UKB_35BM_2021_Testosterone&quot;,&quot;UKB_35BM_2021_Total_bilirubin&quot;,&quot;UKB_35BM_2021_Total_protein&quot;,&quot;UKB_35BM_2021_Triglycerides&quot;,&quot;UKB_35BM_2021_Urate&quot;,&quot;UKB_35BM_2021_Urea&quot;,&quot;UKB_35BM_2021_Vitamin_D&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0.009\" data-max=\"2.054\" data-scale=\"3\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0.007\" data-max=\"0.412\" data-scale=\"3\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0.011\" data-max=\"0.449\" data-scale=\"3\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115"],["UKB_35BM_2021_Lipoprotein_A","C4_01","UKB_35BM_2021_Total_bilirubin","UKB_35BM_2021_Vitamin_D","UKB_PPP_2022_ICAM1","UKB_35BM_2021_Direct_bilirubin","UKB_PPP_2022_IL1B","UKB_FA_2022_met.d.PUFA_pct","Height_03","UKB_PPP_2022_IL6","UKB_FA_2022_met.d.Omega_3","UKB_FA_2022_met.d.PUFA","UKB_PPP_2022_CXCL8","VitDBP_01","UKB_PPP_2022_TNF","UKB_FA_2022_met.d.PUFA_by_MUFA","UKB_FA_2022_met.d.Omega_6_pct","Migraine_01","CD_01","C3_01","UKB_35BM_2021_SHBG","UKB_35BM_2021_Alanine_aminotransferase","UKB_FA_2022_met.d.Omega_6","UKB_PPP_2022_IFNG","IPF_01","Asthma_01","ASD_01","SleepMidpoint_01","UKB_FA_2022_met.d.SFA_pct","BMI_02","UKB_35BM_2021_Urea","UKB_35BM_2021_eGFR","UKB_35BM_2021_HDL_cholesterol","UKB_35BM_2021_Creatinine","IBD_02","CAD_01","UKB_FA_2022_met.d.MUFA_pct","UKB_FA_2022_met.d.Omega_6_by_Omega_3","ADHD_01","AF_01","EA_01","PLT_02","UKB_35BM_2021_Potassium_in_urine","UKB_35BM_2021_Apolipoprotein_A","UKB_FA_2022_met.d.LA_pct","UKB_FA_2022_met.d.LA","UKB_35BM_2021_Albumin","UKB_35BM_2021_Glycated_haemoglobin_HbA1c","PBC_01","UKB_35BM_2021_Sodium_in_urine","FastingGlucose_01","UKB_FA_2022_met.d.Omega_3_pct","BMD_01","COB_01","SlpDu_01","T2D_06","Insomnia_01","CoronaryAtherosclerosis_01","UKB_FA_2022_met.d.MUFA","SCZ_02","UKB_35BM_2021_Apolipoprotein_B_adjstatins","ALS_02","DivD_01","NeuCnt_01","UKB_35BM_2021_Glucose","SBP_01","BIP_02","UKB_35BM_2021_Urate","UC_01","BV_01","HeartFailure_01","Alzheimer_02","Anorexia_01","LymCnt_01","RandomGlucose_01","UKB_35BM_2021_LDL_direct_adjstatins","RBCCnt_01","UKB_35BM_2021_Aspartate_aminotransferase","UKB_35BM_2021_AST_ALT_ratio","mtCNT_01","UKB_35BM_2021_Triglycerides","UKB_35BM_2021_Creatinine_in_urine","GORD_01","UKB_PPP_2022_IL10","UKB_PPP_2022_IL15","MDD_04","FEV1FEC_01","UKB_35BM_2021_Cholesterol_adjstatins","UKB_FA_2022_met.d.SFA","CKD_01","UKB_35BM_2021_C_reactive_protein","ArHI_01","UKB_PPP_2022_IL12B","Melanoma_01","UKB_FA_2022_met.d.DHA","CeliacDisease_01","EosCnt_01","SLE_01","BreastCancer_01","UKB_35BM_2021_Cystatin_C","UKB_35BM_2021_Gamma_glutamyltransferase","UKB_35BM_2021_Alkaline_phosphatase","UKB_35BM_2021_Non_albumin_protein","UKB_FA_2022_met.d.DHA_pct","UKB_35BM_2021_Testosterone","UKB_35BM_2021_Calcium","HipCir_01","Intelligence_01","UKB_PPP_2022_VCAM1","UKB_35BM_2021_IGF_1","UKB_35BM_2021_Total_protein","UKB_35BM_2021_Phosphate","LungCancer_01","Glaucoma_01","HairColor_01"],[0.008999999999999999,0.016,0.028,0.03,0.034,0.036,0.039,0.041,0.041,0.044,0.045,0.045,0.046,0.046,0.049,0.052,0.053,0.053,0.054,0.054,0.057,0.057,0.061,0.061,0.064,0.064,0.065,0.066,0.066,0.06900000000000001,0.073,0.073,0.077,0.078,0.079,0.081,0.08400000000000001,0.08699999999999999,0.08699999999999999,0.09,0.091,0.093,0.094,0.096,0.099,0.1,0.1,0.102,0.102,0.102,0.105,0.108,0.108,0.109,0.11,0.111,0.112,0.112,0.113,0.113,0.115,0.117,0.117,0.117,0.12,0.122,0.122,0.123,0.124,0.126,0.129,0.13,0.132,0.137,0.138,0.14,0.146,0.147,0.148,0.151,0.154,0.157,0.157,0.16,0.167,0.172,0.182,0.187,0.187,0.19,0.192,0.194,0.203,0.204,0.218,0.222,0.227,0.231,0.234,0.242,0.248,0.252,0.253,0.258,0.264,0.272,0.272,0.289,0.292,0.298,0.355,0.469,0.5590000000000001,0.903,2.054],[0.007,0.014,0.016,0.025,0.028,0.02,0.026,0.057,0.056,0.03,0.037,0.046,0.025,0.03,0.023,0.077,0.119,0.039,0.061,0.008999999999999999,0.035,0.045,0.034,0.044,0.059,0.053,0.093,0.045,0.047,0.037,0.051,0.054,0.065,0.031,0.08599999999999999,0.089,0.032,0.028,0.115,0.122,0.127,0.119,0.08,0.059,0.066,0.042,0.05,0.053,0.091,0.081,0.129,0.045,0.1,0.066,0.08699999999999999,0.148,0.076,0.09,0.043,0.091,0.054,0.079,0.066,0.112,0.106,0.075,0.119,0.03,0.117,0.136,0.092,0.105,0.151,0.155,0.1,0.082,0.097,0.051,0.063,0.04,0.115,0.08500000000000001,0.095,0.013,0.131,0.052,0.125,0.104,0.044,0.322,0.059,0.114,0.092,0.02,0.065,0.008999999999999999,0.191,0.134,0.054,0.047,0.169,0.056,0.276,0.06,0.192,0.202,0.21,0.075,0.061,0.146,0.192,0.412,0.044,0.057,0.103],[0.305,0.043,0.058,0.054,0.049,0.063,0.027,0.091,null,0.027,0.082,0.041,0.044,0.07000000000000001,0.054,0.045,0.062,0.053,0.049,0.011,0.042,0.141,0.032,0.05,0.065,0.036,0.07099999999999999,0.061,0.051,null,0.056,0.055,0.025,0.08799999999999999,0.061,0.081,0.117,0.07199999999999999,0.164,0.106,0.121,0.148,0.07099999999999999,0.097,0.03,0.068,0.07099999999999999,0.133,null,0.101,null,0.07099999999999999,0.191,0.075,0.095,0.164,0.08599999999999999,0.083,0.126,0.094,0.096,0.062,0.076,0.107,0.111,0.089,0.18,0.147,0.078,0.092,0.099,0.098,0.145,0.155,0.098,0.128,0.292,0.096,0.1,0.449,0.123,0.066,0.096,0.037,0.136,0.061,0.133,0.152,0.137,0.276,0.168,0.129,0.08799999999999999,0.02,0.109,0.053,0.21,0.128,0.144,0.111,0.136,0.177,0.293,0.079,0.218,0.225,0.256,0.173,0.205,0.177,0.224,0.412,0.135,0.1,0.152]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>variable<\/th>\n      <th>mean_difference<\/th>\n      <th>diff_under_same_snps<\/th>\n      <th>diff_from_convert<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[2,3,4]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"variable","targets":1},{"name":"mean_difference","targets":2},{"name":"diff_under_same_snps","targets":3},{"name":"diff_from_convert","targets":4}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true}},"evals":[],"jsHooks":[]}</script>
+fig.change
+
+
+ggsave(filename = &quot;Figures/SupFig3_imputation_panel_difference_before_and_after_convert.jpeg&quot;, plot = fig.change, width = 12, height = 6)</code></pre>
+<p><img
+src="Figures/SupFig3_imputation_panel_difference_before_and_after_convert.jpeg" /></p>
 </div>
-<div id="combine-figures" class="section level1" number="8">
-<h1><span class="header-section-number">8</span> combine figures</h1>
-<pre class="r"><code>library(patchwork)
-
-
-a = labeled.example.impu.hist1+ theme(legend.position = &quot;none&quot; ) + xlab(&quot;&quot;)
-b = labeled.example.impu.hist2 + theme(legend.position = &quot;none&quot; ) + xlab(&quot;&quot;)+ xlim(-4.2,3)
-c = labeled.example.consist.hist + theme(legend.position = &quot;none&quot; )+ xlab(&quot;&quot;)+ xlim(-4.2,3)
-d = labeled.example.convert.hist + theme(legend.position = &quot;bottom&quot; ) + xlim(-4.2,3)
- 
-combined.fig = a / b / c / d +  plot_layout(heights = c(2.8, 2.8, 2.8, 3) ) + 
-  plot_annotation(tag_levels = &#39;A&#39;)&amp;
-  theme(plot.margin = margin(0, 0, 0, 0)) &amp;               # optional: reduce internal margins
-  theme(plot.spacing = unit(0, &quot;lines&quot;))     
-
-combined.fig</code></pre>
-<p><img src="10_Imputation_Panel_effect_files/figure-html/unnamed-chunk-37-1.png" width="1056" /></p>
-<pre class="r"><code>#ggsave(plot = combined.fig, filename = &quot;Figures/Fig3_PGS_imputation_panel_missingness_and_convert_function.png&quot;, width = 11, height = 10)
-ggsave(plot = combined.fig, filename = &quot;Figures/Fig3_PGS_imputation_panel_missingness_and_convert_function_with_UGLI1.jpeg&quot;, width = 11, height = 10)</code></pre>
-</div>
-<div id="check-genotype-of-glaucoma" class="section level1" number="9">
-<h1><span class="header-section-number">9</span> check genotype of
+<div id="check-genotype-of-glaucoma" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> check genotype of
 Glaucoma</h1>
 <p>The top 1000 SNPs were picked from Glaucoma SBsyesRC weights.
 Genotype of these 1000 SNPs were extracted from the three data sets that
@@ -2346,8 +2231,8 @@ rs2253480_T
 </table>
 </div>
 <div id="check-genotype-of-hair-color" class="section level1"
-number="10">
-<h1><span class="header-section-number">10</span> check genotype of Hair
+number="8">
+<h1><span class="header-section-number">8</span> check genotype of Hair
 color</h1>
 <p>The top 1000 SNPs were picked from Hair color SBsyesRC weights.
 Genotype of these 1000 SNPs were extracted from the three data sets that
