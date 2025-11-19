@@ -1,5 +1,5 @@
 ---
-title: "PGS from a same genotyping using different imputation panels"
+title: "compare PGS from a same genotyping event using different imputation panels"
 output:
   html_document:
     toc: TRUE
@@ -43,33 +43,18 @@ library(ggrepel)
 <br>
 <br>
 
+Four CEPH samples (NA06990, NA07023, NA07057, NA10861) genotyped multiple times on the same array (Illumina GSAMD-24v1-0_20011747)  by QIMRB were imputed to both HRCr1.1 and TOPMed reference panels.
+Comparing the PGS from the two different imputation, we find most traits highly consistent except a few. 
+
+Investigation on the two sets of data suggest the main difference in PGS are caused by the different SNP coverage. Hereby we developed a new method to transit the SNP weights to existing SNPs from missing SNPs when using the high density of SBayesRC predictors. 
 
 
-# Data input
 
-## prepare trait lists
 
-We selected 115 traits to do the analysis. Each analysis will take some of them as examples to put in the main figure, and separate the last of them into 5 groups to put in sup figures.
-
-```{r, eval = F}
+```{r, eval = F,echo = F}
 predictor.list = read.csv("Tables/SupTable2_Predictors.csv")
 included_traits = predictor.list$Predictor
 
-## grouping traits
-traits_binary = predictor.list[which(predictor.list$Group == "Binary" ),"Predictor"]
-traits_quanti = predictor.list[which(predictor.list$Group == "Quantitative"),"Predictor"]
-traits_35bm   = predictor.list[which(predictor.list$Group == "Biomarker"),"Predictor"]
-traits_pfa   = predictor.list[which(predictor.list$Group == "Protein and Fatty Acid"),"Predictor"]
-```
-
-
-
-## input benchmark data 
-
-We used the European samples in the batch 1 of Lifelines data. The data was imputed using HRC imputation panel in house.
-
-
-```{r, eval = F}
 ## benchmarking data
 prs.bench.norm = read.csv("Data/LL/LifeLines1_Eur_140_traits_GCTB_PRS_self_standardized.csv", row.names = 1)
 
@@ -84,14 +69,6 @@ melted.prs$value = as.numeric(melted.prs$value)
 ## add the Label of phenotype
 melted.prs$Trait = predictor.list[match(melted.prs$variable, predictor.list$Predictor),"Label"]
 
-```
-
-
-
-## input CEPH control samples
-
-
-```{r, warning=F, message=F, eval = F}
 control.prs = read.csv("Data/LL_standardized_PGS_of_CEPH_samples.csv", row.names = 1)
 
 ## keep selected traits
@@ -100,13 +77,11 @@ control.prs = cbind(control.prs[,1:11], control.prs[,included_traits])
 ## order it
 control.prs = control.prs %>% arrange(Study_ID,Chip, Genotyping.lab)
 full.control.prs = control.prs
-```
 
-# Prepare data fro plot
+# Prepare data for plot
 
 ## Set up WGS verticle lines
 
-```{r, message=FALSE, warning=FALSE, eval = F}
 # set the position of the vertical line as WGS data
 data.vert = control.prs[which(control.prs$Chip =="WGS"), which(colnames(control.prs)%in%c(included_traits ,"Study_ID" ))]
 
@@ -117,18 +92,15 @@ data.vert = data.vert[row.names(data.vert)%in%included_traits,]
 data.vert$variable = row.names(data.vert)
 data.vert$Trait = predictor.list[match(data.vert$variable, predictor.list$Predictor),"Label"]
 
-```
+
 
 ## set color
 
-```{r}
 color4 =c("#EA3323", "#2F6EBA",  "#A12F9A", "#4FAD5B")
-```
 
 
 ## selected data imputed with both HRC and TopMed
 
-```{r, eval = F}
 ## keep only one chip to compare
 control.prs = data.frame(control.prs[which(control.prs$Chip == "GSAMD-24v1-0_20011747" ), ])
 
@@ -143,12 +115,9 @@ control.prs$Genotyping.lab = factor(control.prs$Genotyping.lab , levels = unique
 ## set panel order
 panel.order = c( "TopMedr3", "HRCr1.1")
 control.prs$imputation_panel = factor(control.prs$imputation_panel, levels =panel.order )
-```
+
 
 ## add y position for control samples
-
-
-```{r, eval = F}
 
 control.prs <- control.prs %>%
   arrange(imputation_panel) %>%
@@ -158,12 +127,9 @@ control.prs <- control.prs %>%
 
 control.prs$y.position = 5*(control.prs$y.position)
 control.prs = data.frame(control.prs)
-```
 
 
 ## melt the data
-
-```{r, eval = F}
 
 melted.control.prs = reshape2::melt(control.prs, 
                           id.vars =colnames(control.prs)[!colnames(control.prs)%in%included_traits], 
@@ -180,7 +146,7 @@ melted.control.prs$Trait = predictor.list[match(melted.control.prs$variable, pre
 
 # summary difference
 
-Here is a plot of average PGS comparing between the two imputation panel of 
+Here is a plot of average PGS comparing between the two imputation panel. 
 
 ```{r, eval = F}
 
@@ -199,7 +165,7 @@ mean.prs.summary$difference = abs(mean.prs.summary$TopMedr3 - mean.prs.summary$H
 ```
 
 
-```{r}
+```{r, eval =  F}
 
 cross.sample.mean = mean.prs.summary %>% 
   group_by(variable) %>% 
@@ -209,9 +175,9 @@ cross.sample.mean = mean.prs.summary %>%
 hist(cross.sample.mean$mean_difference, breaks = 50)
 ```
 
+![](Figures/difference_of_mean_PGS_between_imputation_panel.png)
 
-
-```{r}
+```{r, eval = F}
 
 
 ggplot(data = mean.prs.summary, aes(x = HRCr1.1, y = TopMedr3, color =  Study_ID)) + geom_point()+ 
@@ -222,9 +188,11 @@ ggplot(data = mean.prs.summary, aes(x = HRCr1.1, y = TopMedr3, color =  Study_ID
 
 ```
 
+![](Figures/mean_PGS_comparison_between_imp_panel.jpeg)
+
 # Fig 3. Variation from imputation panels. 
 
-We will use QIMR data to show it, since they are imputed in both panels. 
+## set up function to plot
 
 ```{r}
 ## define function
@@ -289,7 +257,7 @@ return(example.g.hist)
 }
 ```
 
-
+## figA. four good examples
 
 ```{r, fig.width=12, fig.height=3}
 
@@ -331,7 +299,7 @@ labeled.example.impu.hist1
 
 ```
 
-
+## figB. four examples with large difference
 
 ```{r, fig.width=12, fig.height=3}
 
@@ -370,17 +338,11 @@ labeled.example.impu.hist2
 
 
 
-```{r, fig.width=12, fig.height=5}
-
-
-example.impu.hist = ggarrange(example.impu.hist1, example.impu.hist2, nrow =2)
-#ggsave(example.impu.hist, filename = "Figures/Fig_PGS_benchmarking_example_HRC_vs_TOPmed.jpeg", width = 12, height = 5)
-
-```
-
 
 
 # Sup Fig 3. all traits
+
+We used the same plot function to display all the 115 traits in 5 groups. 
 
 ## binary traits
 
@@ -420,7 +382,7 @@ fig.heit = ceiling(length( traits_quanti) / 5 ) *2
 ```
 
 
-## fatty acid and proteins
+## fatty acid 
 
 
 ```{r, fig.width=12, fig.height=8}

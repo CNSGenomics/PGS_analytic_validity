@@ -19,10 +19,8 @@ navbar:
       href: 7_Benchmarking.html
     - text: "PGS Consistency"
       href: 5_Consistency.html
-    - text: "Effect of Imputation Panel"
+    - text: "Effect of Imputation Panel and missing SNPs"
       href: 10_Imputation_Panel_effect.html
-    - text: "Effect of SNP Missing"
-      href: 6_MissingSNP.html
 
 output:
   html_document:
