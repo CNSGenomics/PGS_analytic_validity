@@ -690,6 +690,34 @@ labeled.example.consist.hist
 
 We are using correlation of PGS to show how the PGS got affected by SNP missingness, and how the convert function recover the PGS. 
 
+## convert SNP weight for missing SNPs 
+
+The function is added to GCTB. 
+
+SNP weight of the missing SNPs are converted to the existing SNPs. 
+
+```{bash, eval = F}
+
+## define predictor
+traitfile="GCTB_predictor_list_with_7.3M.txt"
+trait=$(sed "${i}q;d" $traitfile | awk '{print $1}' )
+predictor=$(sed  "${i}q;d"  $traitfile  | awk '{print $3}' )
+echo $trait
+echo $predictor
+
+targetlist=SNP_list_for_nonmissing_test.txt
+ldm=/QRISdata/Q6913/Pipeline/ukbEUR_Imputed
+gctb="/scratch/project_mnt/S0007/jzeng/repo/GCTB_dev/scr/gctb"
+
+$gctb --convert  \
+--snp-res $predictor  \
+--ldm-eigen  $ldm \
+--extract  $targetlist  \
+--thread 8 \
+--out Converted_predictors/${trait}_converted_nonmissing_SBayesRC_predictor
+
+```
+
 
 
 ## combine the data
