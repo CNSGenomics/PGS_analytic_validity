@@ -841,8 +841,35 @@ class="section level1" number="5">
 function in fixing the missingness</h1>
 <p>We are using correlation of PGS to show how the PGS got affected by
 SNP missingness, and how the convert function recover the PGS.</p>
-<div id="combine-the-data-1" class="section level2" number="5.1">
-<h2><span class="header-section-number">5.1</span> combine the data</h2>
+<div id="convert-snp-weight-for-missing-snps" class="section level2"
+number="5.1">
+<h2><span class="header-section-number">5.1</span> convert SNP weight
+for missing SNPs</h2>
+<p>The function is added to GCTB.</p>
+<p>SNP weight of the missing SNPs are converted to the existing
+SNPs.</p>
+<pre class="bash"><code>
+## define predictor
+traitfile=&quot;GCTB_predictor_list_with_7.3M.txt&quot;
+trait=$(sed &quot;${i}q;d&quot; $traitfile | awk &#39;{print $1}&#39; )
+predictor=$(sed  &quot;${i}q;d&quot;  $traitfile  | awk &#39;{print $3}&#39; )
+echo $trait
+echo $predictor
+
+targetlist=SNP_list_for_nonmissing_test.txt
+ldm=/QRISdata/Q6913/Pipeline/ukbEUR_Imputed
+gctb=&quot;/scratch/project_mnt/S0007/jzeng/repo/GCTB_dev/scr/gctb&quot;
+
+$gctb --convert  \
+--snp-res $predictor  \
+--ldm-eigen  $ldm \
+--extract  $targetlist  \
+--thread 8 \
+--out Converted_predictors/${trait}_converted_nonmissing_SBayesRC_predictor
+</code></pre>
+</div>
+<div id="combine-the-data-1" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> combine the data</h2>
 <pre class="r"><code>## input PGS from TopMed imputed using converted predictors
 ceph_convert_PRS_TopMed = read.csv(&quot;Data/missingness_check/QIMR_TopMed_PGS_from_converted_predictors_QIMR_GSA_TopMedr3_imputed_all_123_traits_GCTB_PRS.csv&quot;, row.names =1)
 
@@ -870,8 +897,8 @@ ceph_PRS_WGS$V1 = gsub(&quot;-&quot;, &quot;.&quot;, ceph_PRS_WGS$V1)
 ceph_PRS_WGS = (ceph_PRS_WGS[ match(included_traits, ceph_PRS_WGS$V1),])
 colnames(ceph_PRS_WGS) = c(&quot;variable&quot;, &quot;CN1&quot;, &quot;CN2&quot;, &quot;NA10861&quot;)</code></pre>
 </div>
-<div id="standardize-and-melt-1" class="section level2" number="5.2">
-<h2><span class="header-section-number">5.2</span> standardize and
+<div id="standardize-and-melt-1" class="section level2" number="5.3">
+<h2><span class="header-section-number">5.3</span> standardize and
 melt</h2>
 <pre class="r"><code>mean.sd.table = read.csv(&quot;Data/LifeLines_MEAN_and_SD_of_traits_for_standardization.csv&quot;, row.names = 1)
 mean.sd.table = mean.sd.table[match(included_traits, mean.sd.table$trait ),]
@@ -907,8 +934,8 @@ ceph_PRS_WGS$NA10861 =  ( ceph_PRS_WGS$NA10861 -  mean.sd.table$mean) / mean.sd.
 ceph_PRS_WGS$Trait = predictor.list[match(ceph_PRS_WGS$variable, predictor.list$Predictor),&quot;Label&quot;]
 melted_ceph_convert_PRS$Trait =  predictor.list[match(melted_ceph_convert_PRS$variable, predictor.list$Predictor),&quot;Label&quot;]</code></pre>
 </div>
-<div id="summarize" class="section level2" number="5.3">
-<h2><span class="header-section-number">5.3</span> summarize</h2>
+<div id="summarize" class="section level2" number="5.4">
+<h2><span class="header-section-number">5.4</span> summarize</h2>
 <pre class="r"><code>mean.prs.with.convert.summary = melted_ceph_convert_PRS%&gt;% 
   group_by(Study_ID, variable, imputation_panel) %&gt;%
   summarise(
@@ -927,8 +954,8 @@ cross.sample.mean = data.frame(cross.sample.mean)
 cross.sample.mean.prs.with.convert.summary = data.frame(cross.sample.mean.prs.with.convert.summary)
 cross.sample.mean$diff_from_convert = cross.sample.mean.prs.with.convert.summary[ match(cross.sample.mean$variable, cross.sample.mean.prs.with.convert.summary$variable), &quot;mean_difference&quot;]</code></pre>
 </div>
-<div id="plot-1" class="section level2" number="5.4">
-<h2><span class="header-section-number">5.4</span> plot</h2>
+<div id="plot-1" class="section level2" number="5.5">
+<h2><span class="header-section-number">5.5</span> plot</h2>
 <pre class="r"><code>example.convert.hist =  panel_plot(example.traits =example.traits, facet.col = 4,  legend.pos = &quot;bottom&quot; , melted_ceph_convert_PRS , ceph_PRS_WGS, melted.prs )
  
 
