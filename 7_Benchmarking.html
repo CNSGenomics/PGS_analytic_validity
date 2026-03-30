@@ -13,7 +13,7 @@
 
 <title>Benchmark PGS with representative population</title>
 
-<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
@@ -352,7 +352,13 @@ div.tocify {
   <a href="5_Consistency.html">PGS Consistency</a>
 </li>
 <li>
-  <a href="10_Imputation_Panel_effect.html">Effect of Imputation Panel and missing SNPs</a>
+  <a href="10_Imputation_Panel_effect.html">Imputation panel (HRC vs TOPMed)</a>
+</li>
+<li>
+  <a href="10_PGS_QS.html">PGS:QS</a>
+</li>
+<li>
+  <a href="10_PGS_impute_missing_SNPs.html">Missing SNPs and PGS-impute</a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -501,7 +507,7 @@ f.sd = ggplot(data = mean.sd.table, aes(x = LL_sd, y = GRP_sd)) +
   geom_abline(intercept = 0, slope = 1) +
   theme_bw() + xlab(&quot;Lifelines: SD PGS (raw)&quot;) + ylab(&quot;HSU: DS PGS (raw)&quot;)</code></pre>
 <pre class="r"><code>ggarrange(f.mean, f.sd, ncol=2)</code></pre>
-<p><img src="7_Benchmarking_files/figure-html/unnamed-chunk-6-1.png" width="768" /></p>
+<p><img src="7_Benchmarking_files/figure-html/unnamed-chunk-6-1.png" alt="" width="768" /></p>
 </div>
 <div id="benchmark-ceph-data-with-ll" class="section level1" number="4">
 <h1><span class="header-section-number">4</span> benchmark CEPH data

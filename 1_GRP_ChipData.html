@@ -13,7 +13,7 @@
 
 <title>Chip Data from HSU</title>
 
-<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
@@ -352,7 +352,13 @@ div.tocify {
   <a href="5_Consistency.html">PGS Consistency</a>
 </li>
 <li>
-  <a href="10_Imputation_Panel_effect.html">Effect of Imputation Panel and missing SNPs</a>
+  <a href="10_Imputation_Panel_effect.html">Imputation panel (HRC vs TOPMed)</a>
+</li>
+<li>
+  <a href="10_PGS_QS.html">PGS:QS</a>
+</li>
+<li>
+  <a href="10_PGS_impute_missing_SNPs.html">Missing SNPs and PGS-impute</a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -485,7 +491,7 @@ reference data. <a href="https://www.strand.org.uk">Strand</a> website
 has prepared strand files for a lot of chips. We downloaded the strand
 data for each chip we used, and used the
 <strong>update_build.sh</strong> tool to flip the strands.</p>
-<p><img src="Figures/strand_display.png" width="300px" style="display: block; margin: auto;" /></p>
+<p><img src="Figures/strand_display.png" alt="" width="300px" style="display: block; margin: auto;" /></p>
 <pre class="bash"><code>plink --bfile ${dir}/Original/${data} --flip ${refdir}/$strand  --recode  --make-bed  --out  ${dir}/Original/flipped_${data}</code></pre>
 </div>
 <div id="qc" class="section level2" number="1.6">
