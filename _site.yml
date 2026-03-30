@@ -19,8 +19,12 @@ navbar:
       href: 7_Benchmarking.html
     - text: "PGS Consistency"
       href: 5_Consistency.html
-    - text: "Effect of Imputation Panel and missing SNPs"
+    - text: "Imputation panel (HRC vs TOPMed)"
       href: 10_Imputation_Panel_effect.html
+    - text: "PGS:QS"
+      href: 10_PGS_QS.html
+    - text: "Missing SNPs and PGS-impute"
+      href: 10_PGS_impute_missing_SNPs.html
 
 output:
   html_document:
