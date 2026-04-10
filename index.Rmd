@@ -29,4 +29,4 @@ PGS were generated for each copy of the genome-wide data using the state-of-the-
 
 Our results provide an empirical demonstration of minimal differences in PGS across genotyping batches and technical platforms particularly for the highly polygenic traits. For the small number of traits with very large effect SNPs, PGS are significantly impacted when the high effect SNPs are missed or incorrectly read. Our results provide the empirical support validating that PGS are subject to very little technical variability.
 
-This website is still in updating.
+The genotype datasets used for this evaluation, including the 75-batch technical replicates, multi-platform imputation cohorts, and whole-genome sequencing truth sets, are published in [Figshare](https://doi.org/10.6084/m9.figshare.31797601).
